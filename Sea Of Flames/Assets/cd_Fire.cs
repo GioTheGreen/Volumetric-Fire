@@ -205,7 +205,7 @@ public class cd_Fire : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (!visualizeNoise || !Application.isPlaying)
+        if (!visualizeNoise)// || !Application.isPlaying)
         {
             return;
         }
