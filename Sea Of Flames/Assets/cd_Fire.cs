@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,23 +9,28 @@ public class cd_Fire : MonoBehaviour
 {
     public Vector3 GridSize = Vector3.one;
     public float CubeScale = 1;
+    public float StepTime = 0.3f;
+    public float RenderTime = 0.3f;
+    public int chase = 50;
     [SerializeField] private int width = 30;
     [SerializeField] private int height = 10;
 
     [SerializeField] float resolution = 1;
-    [SerializeField] float noiseScale = 1;
     [SerializeField] private float heightTresshold = 0.5f;
 
     [SerializeField] bool visualizeNoise;
-    [SerializeField] bool use3DNoise;
 
     public List<Vector3> Vertices = new List<Vector3>();
+    public List<Vector3> StartOn = new List<Vector3>();
+
     private List<int> triangles = new List<int>();
     private float[,,] heights;
 
     private Mesh m;
     private MeshFilter mf;
     private SkinnedMeshRenderer Smr;
+
+    private float dt;
 
     void Start()
     {
@@ -52,9 +58,33 @@ public class cd_Fire : MonoBehaviour
         //}
     }
 
-    void Update()
+    void Update() //managed to crash unity for the first time
     {
-        //drawTriangle();
+        dt += Time.deltaTime;
+        if (dt > StepTime) 
+        {
+            for (int i = 0; i < StartOn.Count; i++)
+            {
+                StartOn[i] = (StartOn[i] + new Vector3(0, 1, 0));
+                if (StartOn[i].y > height)
+                {
+                    StartOn.RemoveAt(i);
+                }
+            }
+            List<Vector3> ToAddOn = new List<Vector3>();
+            for (int i = 1; i < width; i++)
+            {
+                for (int j = 1; j < width; j++)
+                {
+                    if (UnityEngine.Random.Range(0, 100) > chase)
+                    {
+                        ToAddOn.Add(new Vector3(i, 0, j));
+                    }
+                }
+            }
+            StartOn.AddRange(ToAddOn);
+            dt = 0;
+        }
     }
 
     private IEnumerator TestAll()
@@ -64,7 +94,7 @@ public class cd_Fire : MonoBehaviour
             SetHeights();
             MarchCubes();
             SetMesh();
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(RenderTime);
         }
     }
 
@@ -89,44 +119,17 @@ public class cd_Fire : MonoBehaviour
             {
                 for (int z = 0; z < width + 1; z++)
                 {
-                    if (use3DNoise)
+                    if (StartOn.Contains(new Vector3(x,y,z)))
                     {
-                        float currentHeight = PerlinNoise3D((float)x / width * noiseScale, (float)y / height * noiseScale, (float)z / width * noiseScale);
-
-                        heights[x, y, z] = currentHeight;
+                        heights[x, y, z] = 1.0f;
                     }
                     else
                     {
-                        float currentHeight = height * Mathf.PerlinNoise(x * noiseScale, z * noiseScale);
-                        float distToSufrace;
-
-                        if (y <= currentHeight - 0.5f)
-                            distToSufrace = 0f;
-                        else if (y > currentHeight + 0.5f)
-                            distToSufrace = 1f;
-                        else if (y > currentHeight)
-                            distToSufrace = y - currentHeight;
-                        else
-                            distToSufrace = currentHeight - y;
-
-                        heights[x, y, z] = distToSufrace;
+                        heights[x,y,z] = 0.0f;
                     }
                 }
             }
         }
-    }
-
-    private float PerlinNoise3D(float x, float y, float z)
-    {
-        float xy = Mathf.PerlinNoise(x, y);
-        float xz = Mathf.PerlinNoise(x, z);
-        float yz = Mathf.PerlinNoise(y, z);
-
-        float yx = Mathf.PerlinNoise(y, x);
-        float zx = Mathf.PerlinNoise(z, x);
-        float zy = Mathf.PerlinNoise(z, y);
-
-        return (xy + xz + yz + yx + zx + zy) / 6;
     }
 
     private int GetConfigIndex(float[] cubeCorners)
