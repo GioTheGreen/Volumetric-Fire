@@ -60,31 +60,31 @@ public class cd_Fire : MonoBehaviour
 
     void Update() //managed to crash unity for the first time
     {
-        //dt += Time.deltaTime;
-        //if (dt > StepTime)
-        //{
-        //    for (int i = 0; i < StartOn.Count; i++)
-        //    {
-        //        StartOn[i] = (StartOn[i] + new Vector3(0, 1, 0));
-        //        if (StartOn[i].y > height)
-        //        {
-        //            StartOn.RemoveAt(i);
-        //        }
-        //    }
-        //    List<Vector3> ToAddOn = new List<Vector3>();
-        //    for (int i = 1; i < width; i++)
-        //    {
-        //        for (int j = 1; j < width; j++)
-        //        {
-        //            if (UnityEngine.Random.Range(0, 100) > chase)
-        //            {
-        //                ToAddOn.Add(new Vector3(i, 0, j));
-        //            }
-        //        }
-        //    }
-        //    StartOn.AddRange(ToAddOn);
-        //    dt = 0;
-        //}
+        dt += Time.deltaTime;
+        if (dt > StepTime)
+        {
+            for (int i = 0; i < StartOn.Count; i++)
+            {
+                StartOn[i] = (StartOn[i] + new Vector3(0, 1, 0));
+                if (StartOn[i].y > height)
+                {
+                    StartOn.RemoveAt(i);
+                }
+            }
+            List<Vector3> ToAddOn = new List<Vector3>();
+            for (int i = 1; i < width; i++)
+            {
+                for (int j = 1; j < width; j++)
+                {
+                    if (UnityEngine.Random.Range(0, 100) > chase)
+                    {
+                        ToAddOn.Add(new Vector3(i, 0, j));
+                    }
+                }
+            }
+            StartOn.AddRange(ToAddOn);
+            dt = 0;
+        }
     }
 
     private IEnumerator TestAll()
