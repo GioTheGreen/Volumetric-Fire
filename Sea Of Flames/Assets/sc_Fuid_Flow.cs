@@ -63,6 +63,37 @@ public class sc_Fuid_Flow : MonoBehaviour
 
     void Update()
     {
-        Debug.DrawRay(transform.position, Vector3.up, Color.gray);
+        ModifyVelocity();
+        MakeIncompressable();
+        MoveVelocityFeild();
+
+        for (int i = 0; i < cells.Length; i++)//left-blue, right-red, front-green, back-yellow, up-black, down white
+        {
+            Debug.DrawRay(cells[i].pos + (new Vector3(-.5f, 0, 0)), Vector3.left /4, Color.blue);
+            Debug.DrawRay(cells[i].pos + (new Vector3(.5f, 0, 0)), Vector3.right / 4, Color.red);
+            Debug.DrawRay(cells[i].pos + (new Vector3(0, 0, .5f)), Vector3.forward / 4, Color.green);
+            Debug.DrawRay(cells[i].pos + (new Vector3(0, 0, -.5f)), Vector3.back / 4, Color.yellow);
+            Debug.DrawRay(cells[i].pos + (new Vector3(0, .5f, 0)), Vector3.up / 4, Color.black);
+            Debug.DrawRay(cells[i].pos + (new Vector3(0, -.5f, 0)), Vector3.down / 4, Color.white);
+        }
+        
+    }
+
+    public void ModifyVelocity()
+    {
+
+    }
+
+    public void MakeIncompressable()
+    {
+        for (int i = 0; i < length; i++)
+        {
+
+        }
+    }
+
+    public void MoveVelocityFeild()
+    {
+
     }
 }
