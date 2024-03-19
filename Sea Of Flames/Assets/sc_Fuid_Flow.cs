@@ -9,7 +9,7 @@ public class sc_Fuid_Flow : MonoBehaviour
     public int height = 10;
     public Vector3[] cnt;
     public float cnt_temp = 100;
-
+    public int itterations = 3;
     private struct Cell
     {
         public Vector3 pos;
@@ -31,7 +31,19 @@ public class sc_Fuid_Flow : MonoBehaviour
             d_Front = dir.z;
         }
     }
+    private struct Flow
+    {
+        public Vector3 axis;
+        public float power;
+        public bool wall;
+
+        public void Divergence(Flow[] other)
+        {
+
+        }
+    }
     private Cell[] cells;
+    private Flow[] flows;
 
 
 
