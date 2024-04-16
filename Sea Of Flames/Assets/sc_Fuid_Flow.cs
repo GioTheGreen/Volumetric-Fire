@@ -98,10 +98,10 @@ public class sc_Fuid_Flow : MonoBehaviour
 
     public void MakeIncompressable()
     {
-        for (int i = 0; i < length; i++)
-        {
+        //for (int i = 0; i < length; i++)
+        //{
 
-        }
+        //}
     }
 
     public void MoveVelocityFeild()
