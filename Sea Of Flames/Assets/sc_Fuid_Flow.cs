@@ -27,6 +27,7 @@ public class sc_Fuid_Flow : MonoBehaviour
     {
         cells = new cd_BaseCell[weidth,height,depth];
         flows = new Flow[((weidth+3) * (height + 2) * (depth + 2)) + ((weidth + 2) * (height+3) * (depth + 2)) + ((weidth + 2) * (height + 2) * (depth+3))];
+        int count = 0;
         for (int i = 0; i < weidth + 2; i++)
         {
             for (int j = 0; j < height + 2; j++)
@@ -52,19 +53,22 @@ public class sc_Fuid_Flow : MonoBehaviour
                         cells[i, j, k] = c;
                     }
 
+                    // stitching the cells and the flows
+                    if (cells[i,j,k].addedFlow.Contains<bool>(false)) //order: left right down up front back
+                    {
+                        if (cells[i, j, k].addedFlow[0] && i > 1)//left
+                        {
+                            if (cells[i - 1, j, k].addedFlow[1] == true)
+                            {
+                                cells[i, j, k].flowIndex[0] = cells[i-1, j, k].flowIndex[1];
+                            }
+                            else 
+                            {
+                            
+                            }
+                        }
+                    }
                 }
-            }
-        }
-        int count = 0;
-        foreach (cd_BaseCell cell in cells) // stitching the cells and the flows
-        {
-            if (!cell.addedFlow)
-            {
-
-
-
-
-                cell.addedFlow = true;
             }
         }
     }
