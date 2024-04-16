@@ -26,7 +26,7 @@ public class sc_Fuid_Flow : MonoBehaviour
     void Start()
     {
         cells = new cd_BaseCell[weidth,height,depth];
-        flows = new Flow[((weidth+1) * (height) * (depth)) + ((weidth) * (height+1) * (depth)) + ((weidth) * (height) * (depth+1))];
+        flows = new Flow[((weidth+3) * (height + 2) * (depth + 2)) + ((weidth + 2) * (height+3) * (depth + 2)) + ((weidth + 2) * (height + 2) * (depth+3))];
         for (int i = 0; i < weidth + 2; i++)
         {
             for (int j = 0; j < height + 2; j++)
@@ -39,7 +39,7 @@ public class sc_Fuid_Flow : MonoBehaviour
                         c.inisate();
                         cells[i,j,k] = c;
                     }
-                    else if (i == 0 || j == 0 || k == 0 || i > weidth + 1 || j > height + 1 || k > depth + 1 || walls.Contains<Vector3>(new Vector3(i,j,k)))
+                    else if (i == 0 || j == 0 || k == 0 || i > weidth + 1 || j > height + 1 || k > depth + 1 || walls.Contains<Vector3>(new Vector3(i-1,j-1,k-1)))
                     {
                         cd_WallCell c = new cd_WallCell();
                         c.inisate();
@@ -55,11 +55,24 @@ public class sc_Fuid_Flow : MonoBehaviour
                 }
             }
         }
+        int count = 0;
+        foreach (cd_BaseCell cell in cells) // stitching the cells and the flows
+        {
+            if (!cell.addedFlow)
+            {
+
+
+
+
+                cell.addedFlow = true;
+            }
+        }
     }
 
     void Update()
     {
         dt = Time.deltaTime;
+
         ModifyVelocity();
         MakeIncompressable();
         MoveVelocityFeild();

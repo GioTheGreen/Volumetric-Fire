@@ -7,7 +7,8 @@ public class cd_BaseCell : MonoBehaviour
     public int s;//1 for flow area, 0 for wall area
     public float d;//divergense 
     public float temp;
-    public int[] flowAddress = new int[6];
+    public bool addedFlow = false;
+    public int[] flowIndex = new int[6]; //order: left right down up front back
 
     public enum EType 
     {
