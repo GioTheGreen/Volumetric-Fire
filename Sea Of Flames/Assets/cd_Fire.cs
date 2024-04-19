@@ -230,9 +230,25 @@ public class cd_Fire : MonoBehaviour
                 for (int z = 0; z < width + 1; z++)
                 {
                     Gizmos.color = new Color(heights[x, y, z], heights[x, y, z], heights[x, y, z], 1);
-                    Gizmos.DrawSphere(new Vector3(x * resolution, y * resolution, z * resolution), 0.2f * resolution);
+                    Gizmos.DrawSphere(new Vector3(x * resolution, y * resolution, z * resolution), 0.05f * resolution);
                 }
             }
         }
+        Debug.DrawRay(Vector3.zero, Vector3.right, Color.green);   //for one cube testing
+        Debug.DrawRay(Vector3.zero, Vector3.up, Color.green);
+        Debug.DrawRay(Vector3.zero, Vector3.forward, Color.green);
+
+        Debug.DrawRay(Vector3.up, Vector3.right, Color.green);
+        Debug.DrawRay(Vector3.up, Vector3.forward, Color.green);
+
+        Debug.DrawRay(Vector3.forward, Vector3.right, Color.green);
+        Debug.DrawRay(Vector3.forward, Vector3.up, Color.green);
+
+        Debug.DrawRay(Vector3.right, Vector3.up, Color.green);
+        Debug.DrawRay(Vector3.right, Vector3.forward, Color.green);
+
+        Debug.DrawRay(Vector3.right + Vector3.forward + Vector3.up, Vector3.left, Color.green);
+        Debug.DrawRay(Vector3.right + Vector3.forward + Vector3.up, Vector3.down, Color.green);
+        Debug.DrawRay(Vector3.right + Vector3.forward + Vector3.up, Vector3.back, Color.green);
     }
 }
