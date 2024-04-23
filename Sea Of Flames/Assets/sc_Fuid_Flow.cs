@@ -33,7 +33,7 @@ public class sc_Fuid_Flow : MonoBehaviour
     void Start()
     {
         cells = new cd_BaseCell[weidth+2,height+2,depth+2];
-        flows = new Flow[(((weidth+3) * (height + 2) * (depth + 2)) + ((weidth + 2) * (height+3) * (depth + 2)) + ((weidth + 2) * (height + 2) * (depth+3))) / 2];
+        flows = new Flow[(((weidth+3) * (height + 2) * (depth + 2)) + ((weidth + 2) * (height+3) * (depth + 2)) + ((weidth + 2) * (height + 2) * (depth+3)))];
         Debug.Log("calc: " + flows.Length);
         for (int i = 0; i < weidth + 2; i++)
         {
@@ -74,6 +74,7 @@ public class sc_Fuid_Flow : MonoBehaviour
                     if (cells[i, j, k].addedFlow.Contains<bool>(false)) //order: left right down up front back
                     {
                         if (!cells[i, j, k].addedFlow[0] && i > 0)
+
                         {
                             if (cells[i - 1, j, k].addedFlow[1])
                             {

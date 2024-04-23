@@ -6,6 +6,7 @@ public class cd_BaseCell : MonoBehaviour
 {
     public int s;//1 for flow area, 0 for wall area
     public float d;//divergense 
+    public float p_count;// partical count
     public float temp;
     public bool[] addedFlow = { false,false,false,false,false,false};
     public int[] flowIndex = {0,0,0,0,0,0 }; //order: left right down up front back
@@ -23,5 +24,6 @@ public class cd_BaseCell : MonoBehaviour
     {
         s = 0;
         temp = 0;
+        p_count = 0;
     }
 }

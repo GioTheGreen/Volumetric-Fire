@@ -8,6 +8,7 @@ public class cd_FluidCell : cd_BaseCell
     {
         s = 1;
         temp = 0;
+        p_count = 100;
         EType type = EType.eFluid;
     }
 }

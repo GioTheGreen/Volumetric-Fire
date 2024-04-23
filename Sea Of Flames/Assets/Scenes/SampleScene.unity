@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44251314, g: 0.49159974, b: 0.5714363, a: 1}
+  m_IndirectSpecularColor: {r: 0.4425135, g: 0.49160016, b: 0.5714367, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -440,11 +440,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridSize: {x: 1, y: 1, z: 1}
   CubeScale: 1
-  StepTime: 9999999
-  RenderTime: 9999999
+  StepTime: 0.3
+  RenderTime: 0.3
   chase: 20
-  width: 1
-  height: 1
+  width: 10
+  height: 10
   resolution: 1
   heightTresshold: 0.1
   visualizeNoise: 1

@@ -8,6 +8,7 @@ public class cd_WallCell : cd_BaseCell
     {
         s = 0;
         temp = 0;
+        p_count = 100;
         EType type = EType.eWall;
     }
 }
