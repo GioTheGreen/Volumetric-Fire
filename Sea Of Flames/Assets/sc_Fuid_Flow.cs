@@ -12,14 +12,14 @@ public class sc_Fuid_Flow : MonoBehaviour
     public float jet_temp = 100;
     public Vector3[] walls;
     public int itterations = 3;
-    private cd_BaseCell[,,] cells;
+    public cd_BaseCell[,,] cells;
     public struct Flow
     {
         public Vector3 axis;
         public float power;
         public bool Display;
     }
-    private Flow[] flows;
+    public Flow[] flows;
     private float dt;
     public enum EDiscplyType 
     {
@@ -45,6 +45,7 @@ public class sc_Fuid_Flow : MonoBehaviour
                     {
                         cd_JetCell c = new cd_JetCell();
                         c.inisate();
+
                         cells[i, j, k] = c;
                     }
                     else if (i == 0 || j == 0 || k == 0 || i > weidth + 1 || j > height + 1 || k > depth + 1 || walls.Contains<Vector3>(new Vector3(i - 1, j - 1, k - 1)))
@@ -163,6 +164,19 @@ public class sc_Fuid_Flow : MonoBehaviour
             }
         } //conacting the cells and flows
         Debug.Log("acutal: " + count);
+        for (int i = 0; i < weidth + 2; i++)
+        {
+            for (int j = 0; j < height + 2; j++)
+            {
+                for (int k = 0; k < depth + 2; k++)
+                {
+                    if (cells[i,j,k].type == cd_BaseCell.EType.eJet)
+                    {
+                        flows[cells[i+1, j+1, k+1].flowIndex[3]].power = 10;
+                    }
+                }
+            }
+        }
     }
 
     void Update()
@@ -222,6 +236,7 @@ public class sc_Fuid_Flow : MonoBehaviour
                             }
                             line /= count;
                             Debug.DrawRay(startPos + new Vector3(i, j, k), line, Color.blue);
+                            //Gizmos.DrawSphere(startPos + new Vector3(i, j, k), 1);
                         }
                     }
                 }

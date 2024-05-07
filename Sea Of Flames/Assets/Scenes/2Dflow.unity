@@ -155,11 +155,13 @@ MonoBehaviour:
   weidth: 10
   height: 10
   depth: 2
-  jets: []
+  jets:
+  - {x: 5, y: 0, z: 0}
+  - {x: 5, y: 5, z: 1}
   jet_temp: 100
   walls: []
   itterations: 3
-  displayType: 0
+  displayType: 2
 --- !u!4 &10126636
 Transform:
   m_ObjectHideFlags: 0
