@@ -11,7 +11,10 @@ public class sc_Fuid_Flow : MonoBehaviour
     public Vector3[] jets;
     public float jet_temp = 100;
     public Vector3[] walls;
+    public bool useItterations = true;
     public int itterations = 3;
+    public bool overrelaxation = true;
+    public float overrelaxationCount = 1.9f; // 1 < o < 2,    the bigger the better
     public cd_BaseCell[,,] cells;
     public struct Flow
     {
@@ -19,7 +22,7 @@ public class sc_Fuid_Flow : MonoBehaviour
         public float power;
         public bool Display;
     }
-    public Flow[] flows;
+    public Flow[] flows; // staggered grid
     private float dt;
     public enum EDiscplyType 
     {
@@ -172,7 +175,7 @@ public class sc_Fuid_Flow : MonoBehaviour
                 {
                     if (cells[i,j,k].type == cd_BaseCell.EType.eJet)
                     {
-                        flows[cells[i+1, j+1, k+1].flowIndex[3]].power = 10;
+                        flows[cells[i+1, j+1, k+1].flowIndex[3]].power = 1;
                     }
                 }
             }
@@ -185,7 +188,7 @@ public class sc_Fuid_Flow : MonoBehaviour
 
         ModifyVelocity();
         MakeIncompressable();
-        MoveVelocityFeild();
+        //MoveVelocityFeild();
 
         Vector3 startPos = transform.position + new Vector3(-weidth / 2, -height / 2, -depth / 2);
         switch (displayType)
@@ -225,16 +228,19 @@ public class sc_Fuid_Flow : MonoBehaviour
                         for (int k = 1; k < depth + 1; k++)
                         {
                             Vector3 line = Vector3.zero;
-                            int count = 0;
-                            for (int p = 0; p < 6; p++)
-                            {
-                                if (cells[i, j, k].addedFlow[p])
-                                {
-                                    line += flows[cells[i, j, k].flowIndex[p]].axis * flows[cells[i, j, k].flowIndex[p]].power;
-                                    count++;
-                                }
-                            }
-                            line /= count;
+                            //int count = 0;
+                            //for (int p = 0; p < 6; p++)
+                            //{
+                            //    if (cells[i, j, k].addedFlow[p])
+                            //    {
+                            //        line += flows[cells[i, j, k].flowIndex[p]].axis * flows[cells[i, j, k].flowIndex[p]].power;
+                            //        count++;
+                            //    }
+                            //}
+                            //line /= count;
+                            line = new Vector3(flows[cells[i, j, k].flowIndex[1]].power - flows[cells[i, j, k].flowIndex[0]].power,
+                        flows[cells[i, j, k].flowIndex[3]].power - flows[cells[i, j, k].flowIndex[2]].power,
+                        flows[cells[i, j, k].flowIndex[5]].power - flows[cells[i, j, k].flowIndex[4]].power);
                             Debug.DrawRay(startPos + new Vector3(i, j, k), line, Color.blue);
                             //Gizmos.DrawSphere(startPos + new Vector3(i, j, k), 1);
                         }
@@ -286,28 +292,201 @@ public class sc_Fuid_Flow : MonoBehaviour
 
     public void ModifyVelocity()
     {
-        //foreach (cd_BaseCell cell in cells)
-        //{
-        //    //g = -9.81
-        //    //v = v + dt* g
-        //    //temp calc
-        //}
+        for (int i = 1; i < weidth + 1; i++)
+        {
+            for (int j = 1; j < height + 1; j++)
+            {
+                for (int k = 1; k < depth + 1; k++)//order: left right down up front back
+                {
+                    if (cells[i, j, k].s == 1)
+                    {
+                        if (cells[i,j,k].type == cd_BaseCell.EType.eJet)
+                        {
+                            float g = 5f;
+                            flows[cells[i, j, k].flowIndex[2]].power += g * dt;
+                            flows[cells[i, j, k].flowIndex[3]].power += g * dt;
+                        }
+                        else
+                        {
+                            float g = -0.981f;
+                            flows[cells[i, j, k].flowIndex[2]].power += g * dt;
+                            flows[cells[i, j, k].flowIndex[3]].power += g * dt;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void MakeIncompressable()
     {
-        //foreach(cd_BaseCell cell in cells)
-        //{
-        //    // get divergence
-        //}
-        //for (int i = 0; i < itterations; i++)
-        //{
-        //    //fix divergense
-        //}
+        if (useItterations)
+        {
+            for (int t = 0; t < itterations; t++)
+            {
+                for (int i = 1; i < weidth + 1; i++)
+                {
+                    for (int j = 1; j < height + 1; j++)
+                    {
+                        for (int k = 1; k < depth + 1; k++)//order: left right down up front back
+                        {
+                            if (cells[i, j, k].s == 1)
+                            {
+                                cells[i, j, k].divCount = 0;
+                                cells[i, j, k].d = 0;
+                                if (cells[i - 1, j, k].s == 1)
+                                {
+                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[0]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (cells[i + 1, j, k].s == 1)
+                                {
+                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[1]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (cells[i, j - 1, k].s == 1)
+                                {
+                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[2]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (cells[i, j + 1, k].s == 1)
+                                {
+                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[3]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (cells[i, j, k - 1].s == 1)
+                                {
+                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[4]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (cells[i, j, k + 1].s == 1)
+                                {
+                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[5]].power;
+                                    cells[i, j, k].divCount++;
+                                }
+                                if (overrelaxation)
+                                {
+                                    cells[i, j, k].d *= overrelaxationCount;
+                                }
+                                if (cells[i, j, k].d != 0)
+                                {
+                                    flows[cells[i, j, k].flowIndex[0]].power += (cells[i, j, k].d * cells[i - 1, j, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[1]].power -= (cells[i, j, k].d * cells[i + 1, j, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[2]].power += (cells[i, j, k].d * cells[i, j - 1, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[3]].power -= (cells[i, j, k].d * cells[i, j + 1, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[4]].power += (cells[i, j, k].d * cells[i, j, k - 1].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[5]].power -= (cells[i, j, k].d * cells[i, j, k + 1].s / cells[i, j, k].divCount);
+                                }
+
+
+
+
+                            }
+                        }
+                    }
+
+                    //for (int i = 1; i < weidth + 1; i++)
+                    //{
+                    //    for (int j = 1; j < height + 1; j++)
+                    //    {
+                    //        for (int k = 1; k < depth + 1; k++)//order: left right down up front back
+                    //        {
+                    //            if (cells[i, j, k].s == 1)
+                    //            {
+                                    //if (cells[i, j, k].d != 0)
+                                    //{
+                                    //    flows[cells[i, j, k].flowIndex[0]].power -= (cells[i, j, k].d * cells[i - 1, j, k].s / cells[i, j, k].divCount);
+                                    //    flows[cells[i, j, k].flowIndex[1]].power += (cells[i, j, k].d * cells[i + 1, j, k].s / cells[i, j, k].divCount);
+                                    //    flows[cells[i, j, k].flowIndex[2]].power -= (cells[i, j, k].d * cells[i, j - 1, k].s / cells[i, j, k].divCount);
+                                    //    flows[cells[i, j, k].flowIndex[3]].power += (cells[i, j, k].d * cells[i, j + 1, k].s / cells[i, j, k].divCount);
+                                    //    flows[cells[i, j, k].flowIndex[4]].power -= (cells[i, j, k].d * cells[i, j, k - 1].s / cells[i, j, k].divCount);
+                                    //    flows[cells[i, j, k].flowIndex[5]].power += (cells[i, j, k].d * cells[i, j, k + 1].s / cells[i, j, k].divCount);
+                                    //}
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                }
+            }
+        }
+        else
+        {
+            bool changed = true;
+            while (changed)
+            {
+                for (int i = 1; i < weidth + 1; i++)
+                {
+                    for (int j = 1; j < height + 1; j++)
+                    {
+                        for (int k = 1; k < depth + 1; k++)//order: left right down up front back
+                        {
+                            if (cells[i, j, k].s == 1)
+                            {
+                                if (cells[i, j, k].d != 0)
+                                {
+                                    flows[cells[i, j, k].flowIndex[0]].power += (cells[i, j, k].d * cells[i - 1, j, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[1]].power += (cells[i, j, k].d * cells[i + 1, j, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[2]].power += (cells[i, j, k].d * cells[i, j - 1, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[3]].power += (cells[i, j, k].d * cells[i, j + 1, k].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[4]].power += (cells[i, j, k].d * cells[i, j, k - 1].s / cells[i, j, k].divCount);
+                                    flows[cells[i, j, k].flowIndex[5]].power += (cells[i, j, k].d * cells[i, j, k + 1].s / cells[i, j, k].divCount);
+                                }
+                                else
+                                {
+                                    changed = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 
     public void MoveVelocityFeild()
     {
+        Flow[] newflows = flows;
+        Vector3 startPos = transform.position + new Vector3(-weidth / 2, -height / 2, -depth / 2);
+        for (int i = 1; i < weidth + 1; i++)
+        {
+            for (int j = 1; j < height + 1; j++)
+            {
+                for (int k = 1; k < depth + 1; k++)//order: left right down up front back
+                {
+                    Vector3 velocity = new Vector3(flows[cells[i,j,k].flowIndex[1]].power - flows[cells[i, j, k].flowIndex[0]].power,
+                        flows[cells[i, j, k].flowIndex[3]].power - flows[cells[i, j, k].flowIndex[2]].power,
+                        flows[cells[i, j, k].flowIndex[5]].power - flows[cells[i, j, k].flowIndex[4]].power);
+                    Vector3 PullLocation = startPos + new Vector3(i, j, k) - (velocity * dt);
+                    float dx, dy, dz;
+                    dx = PullLocation.x % 1;
+                    dy = PullLocation.y % 1;
+                    dz = PullLocation.z % 1;
+                    int nx, ny, nz;
+                    nx = (int)(PullLocation.x - dx);
+                    ny = (int)(PullLocation.y - dy);
+                    nz = (int)(PullLocation.z - dz);
 
+                    Vector3 v000 = new Vector3(flows[cells[nx, ny, nz].flowIndex[1]].power - flows[cells[nx, ny, nz].flowIndex[0]].power,
+                        flows[cells[nx, ny, nz].flowIndex[3]].power - flows[cells[nx, ny, nz].flowIndex[2]].power,
+                        flows[cells[nx, ny, nz].flowIndex[5]].power - flows[cells[nx, ny, nz].flowIndex[4]].power);
+
+                    Vector3 v100 = new Vector3(flows[cells[nx + 1, ny, nz].flowIndex[1]].power - flows[cells[nx + 1, ny, nz].flowIndex[0]].power, 0, 0); //why waist the processing power
+                        //flows[cells[nx + 1, ny, nz].flowIndex[3]].power - flows[cells[nx + 1, ny, nz].flowIndex[2]].power,
+                        //flows[cells[nx + 1, ny, nz].flowIndex[5]].power - flows[cells[nx + 1, ny, nz].flowIndex[4]].power);
+
+                    Vector3 v010 = new Vector3(/*flows[cells[nx, ny+1, nz].flowIndex[1]].power - flows[cells[nx, ny+1, nz].flowIndex[0]].power*/0,
+                        flows[cells[nx, ny+1, nz].flowIndex[3]].power - flows[cells[nx, ny+1, nz].flowIndex[2]].power,
+                        /*flows[cells[nx, ny+1, nz].flowIndex[5]].power - flows[cells[nx, ny+1, nz].flowIndex[4]].power*/0);
+
+                    Vector3 v001 = new Vector3(/*flows[cells[nx, ny, nz+1].flowIndex[1]].power - flows[cells[nx, ny, nz+1].flowIndex[0]].power*/0,
+                        /*flows[cells[nx, ny, nz+1].flowIndex[3]].power - flows[cells[nx, ny, nz+1].flowIndex[2]].power*/0,
+                        flows[cells[nx, ny, nz+1].flowIndex[5]].power - flows[cells[nx, ny, nz+1].flowIndex[4]].power);
+
+                    Vector3 final = new Vector3((v000.x * dx) +(v100.x * (1-dx)), (v000.y * dy) + (v010.y * (1 - dy)), (v000.z * dz) + (v001.z * (1 - dz)));
+
+                }
+            }
+        }
     }
 }

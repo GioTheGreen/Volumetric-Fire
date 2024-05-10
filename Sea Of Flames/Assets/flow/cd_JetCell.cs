@@ -7,7 +7,7 @@ public class cd_JetCell : cd_BaseCell
     public Vector3 dir;
     override public void inisate()
     {
-        s = 0;
+        s = 1;
         temp = 100;
         p_count = 600;
         EType type = EType.eJet;
