@@ -155,14 +155,18 @@ MonoBehaviour:
   weidth: 10
   height: 10
   depth: 10
-  jets:
-  - {x: 5, y: 5, z: 5}
+  jets: []
   jet_temp: 100
   walls: []
+  removers:
+  - {x: 5, y: 10, z: 5}
+  - {x: 5, y: 10, z: 4}
+  - {x: 4, y: 10, z: 5}
+  - {x: 4, y: 10, z: 4}
   useItterations: 1
-  itterations: 500
+  itterations: 200
   overrelaxation: 1
-  overrelaxationCount: 1.9
+  overrelaxationCount: 1.1
   displayType: 2
 --- !u!4 &10126636
 Transform:
@@ -358,14 +362,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2029745047}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -13.93}
+  m_LocalRotation: {x: 0.25308344, y: 0.35708246, z: -0.10115185, w: 0.8934256}
+  m_LocalPosition: {x: -9.192492, y: 8.917573, z: -9.290976}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 31.632, y: 43.571, z: 0}
 --- !u!114 &2029745051
 MonoBehaviour:
   m_ObjectHideFlags: 0

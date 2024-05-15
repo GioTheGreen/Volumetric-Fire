@@ -447,7 +447,7 @@ MonoBehaviour:
   height: 10
   resolution: 1
   heightTresshold: 0.1
-  visualizeNoise: 1
+  visualizeNoise: 0
   Vertices: []
   StartOn: []
 --- !u!33 &1631014833

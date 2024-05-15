@@ -5,12 +5,13 @@ using UnityEngine;
 
 public class sc_Fuid_Flow : MonoBehaviour
 {
-    public int weidth = 10;
+    public int weidth = 10;//move it move it
     public int height = 10;
     public int depth = 1;
     public Vector3[] jets;
     public float jet_temp = 100;
     public Vector3[] walls;
+    public Vector3[] removers;
     public bool useItterations = true;
     public int itterations = 3;
     public bool overrelaxation = true;
@@ -48,7 +49,12 @@ public class sc_Fuid_Flow : MonoBehaviour
                     {
                         cd_JetCell c = new cd_JetCell();
                         c.inisate();
-
+                        cells[i, j, k] = c;
+                    }
+                    else if (removers.Contains<Vector3>(new Vector3(i-1,j-1,k-1)))
+                    {
+                        cd_DeletorCell c = new cd_DeletorCell();
+                        c.inisate();
                         cells[i, j, k] = c;
                     }
                     else if (i == 0 || j == 0 || k == 0 || i > weidth + 1 || j > height + 1 || k > depth + 1 || walls.Contains<Vector3>(new Vector3(i - 1, j - 1, k - 1)))
@@ -68,11 +74,11 @@ public class sc_Fuid_Flow : MonoBehaviour
         }
 
         int count = 0;
-        for (int i = 0; i < weidth + 2; i++) // decided to loop twice just to provent future problems
+        for (int i = 1; i < weidth + 1; i++) // decided to loop twice just to provent future problems
         {
-            for (int j = 0; j < height + 2; j++)
+            for (int j = 1; j < height + 1; j++)
             {
-                for (int k = 0; k < depth + 2; k++)
+                for (int k = 1; k < depth + 1; k++)
                 {
                     // stitching the cells and the flows
                     if (cells[i, j, k].addedFlow.Contains<bool>(false)) //order: left right down up front back
@@ -303,14 +309,51 @@ public class sc_Fuid_Flow : MonoBehaviour
                         if (cells[i,j,k].type == cd_BaseCell.EType.eJet)
                         {
                             float g = 5f;
-                            flows[cells[i, j, k].flowIndex[2]].power += g * dt;
-                            flows[cells[i, j, k].flowIndex[3]].power += g * dt;
+                            if (cells[i, j - 1, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[2]].power += g * dt;
+                            }
+                            if (cells[i, j + 1, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[3]].power += g * dt;
+                            }
+                        }
+                        else if (cells[i, j, k].type == cd_BaseCell.EType.eDeletor)
+                        {
+                            float g = 1f;
+                            if (cells[i-1, j, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[0]].power -= g * dt;
+                            }
+                            if (cells[i+1, j, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[1]].power -= g * dt;
+                            }
+                            if (cells[i, j - 1, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[2]].power -= g * dt;
+                            }
+                            if (cells[i, j + 1, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[3]].power -= g * dt;
+                            }
+                            if (cells[i, j, k-1].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[4]].power -= g * dt;
+                            }
+                            if (cells[i, j, k+1].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[5]].power -= g * dt;
+                            }
                         }
                         else
                         {
                             float g = -0.981f;
-                            flows[cells[i, j, k].flowIndex[2]].power += g * dt;
-                            flows[cells[i, j, k].flowIndex[3]].power += g * dt;
+                            if (cells[i, j - 1, k].s == 1)
+                            {
+                                flows[cells[i, j, k].flowIndex[2]].power += g * dt;
+                            }
+
                         }
                     }
                 }
@@ -334,53 +377,71 @@ public class sc_Fuid_Flow : MonoBehaviour
                             {
                                 cells[i, j, k].divCount = 0;
                                 cells[i, j, k].d = 0;
+
+                                cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[0]].power;
+                                cells[i, j, k].d += flows[cells[i, j, k].flowIndex[1]].power;
+                                cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[2]].power;
+                                cells[i, j, k].d += flows[cells[i, j, k].flowIndex[3]].power;
+                                cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[4]].power;
+                                cells[i, j, k].d += flows[cells[i, j, k].flowIndex[5]].power;
+
                                 if (cells[i - 1, j, k].s == 1)
                                 {
-                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[0]].power;
                                     cells[i, j, k].divCount++;
                                 }
                                 if (cells[i + 1, j, k].s == 1)
                                 {
-                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[1]].power;
                                     cells[i, j, k].divCount++;
                                 }
                                 if (cells[i, j - 1, k].s == 1)
                                 {
-                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[2]].power;
                                     cells[i, j, k].divCount++;
                                 }
                                 if (cells[i, j + 1, k].s == 1)
                                 {
-                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[3]].power;
                                     cells[i, j, k].divCount++;
                                 }
                                 if (cells[i, j, k - 1].s == 1)
                                 {
-                                    cells[i, j, k].d -= flows[cells[i, j, k].flowIndex[4]].power;
                                     cells[i, j, k].divCount++;
                                 }
                                 if (cells[i, j, k + 1].s == 1)
                                 {
-                                    cells[i, j, k].d += flows[cells[i, j, k].flowIndex[5]].power;
                                     cells[i, j, k].divCount++;
                                 }
+
                                 if (overrelaxation)
                                 {
                                     cells[i, j, k].d *= overrelaxationCount;
                                 }
-                                if (cells[i, j, k].d != 0)
+
+                                if (cells[i, j, k].d != 0 || cells[i, j, k].divCount != 0)
                                 {
-                                    flows[cells[i, j, k].flowIndex[0]].power += (cells[i, j, k].d * cells[i - 1, j, k].s / cells[i, j, k].divCount);
-                                    flows[cells[i, j, k].flowIndex[1]].power -= (cells[i, j, k].d * cells[i + 1, j, k].s / cells[i, j, k].divCount);
-                                    flows[cells[i, j, k].flowIndex[2]].power += (cells[i, j, k].d * cells[i, j - 1, k].s / cells[i, j, k].divCount);
-                                    flows[cells[i, j, k].flowIndex[3]].power -= (cells[i, j, k].d * cells[i, j + 1, k].s / cells[i, j, k].divCount);
-                                    flows[cells[i, j, k].flowIndex[4]].power += (cells[i, j, k].d * cells[i, j, k - 1].s / cells[i, j, k].divCount);
-                                    flows[cells[i, j, k].flowIndex[5]].power -= (cells[i, j, k].d * cells[i, j, k + 1].s / cells[i, j, k].divCount);
+                                    if (cells[i-1, j, k].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[0]].power += (cells[i, j, k].d * cells[i - 1, j, k].s / cells[i, j, k].divCount);
+                                    }
+                                    if (cells[i + 1, j, k].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[1]].power -= (cells[i, j, k].d * cells[i + 1, j, k].s / cells[i, j, k].divCount);
+                                    }
+                                    if (cells[i, j - 1, k].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[2]].power += (cells[i, j, k].d * cells[i, j - 1, k].s / cells[i, j, k].divCount);
+                                    }
+                                    if (cells[i, j + 1, k].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[3]].power -= (cells[i, j, k].d * cells[i, j + 1, k].s / cells[i, j, k].divCount);
+                                    }
+                                    if (cells[i, j, k - 1].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[4]].power += (cells[i, j, k].d * cells[i, j, k - 1].s / cells[i, j, k].divCount);
+                                    }
+                                    if (cells[i, j, k + 1].s == 1)
+                                    {
+                                        flows[cells[i, j, k].flowIndex[5]].power -= (cells[i, j, k].d * cells[i, j, k + 1].s / cells[i, j, k].divCount);
+                                    }
                                 }
-
-
-
-
                             }
                         }
                     }

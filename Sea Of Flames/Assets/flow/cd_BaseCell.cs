@@ -9,8 +9,8 @@ public class cd_BaseCell : MonoBehaviour
     public int divCount = 0;
     public float p_count;// partical count
     public float temp;
-    public bool[] addedFlow = { false,false,false,false,false,false};
-    public int[] flowIndex = {0,0,0,0,0,0 }; //order: left right down up front back
+    public bool[] addedFlow = new bool[]{ false,false,false,false,false,false};
+    public int[] flowIndex = new int[]{0,0,0,0,0,0 }; //order: left right down up front back
 
     public enum EType 
     {
